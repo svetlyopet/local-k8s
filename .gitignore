@@ -1,3 +1,2 @@
 .DS_STORE
 .vagrant
-shared/kubernetes_join_command

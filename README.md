@@ -2,7 +2,7 @@
 
 Repo for deploying and setting up a local k8s cluster for testing purposes. </br>
 The cluster uses a [Calico](https://docs.projectcalico.org/) network and containerd as the container runtime. </br>
-Everything placed in the ./shared folder of this repo will be available in all the nodes at /mnt/shared .
+Everything placed in the ./shared directory of this repo will be available in all the nodes at /mnt/shared .
 
 ## Minimal Hardware Requirements:
 
