@@ -2,7 +2,7 @@
 
 Repo for deploying and setting up a local k8s cluster for testing purposes. </br>
 The cluster uses a [Calico](https://docs.projectcalico.org/) network and containerd as the container runtime. </br>
-Everything placed in the ./shared folder of this repo will be available in the master node at /mnt/shared .
+Everything placed in the ./shared folder of this repo will be available in all the nodes at /mnt/shared .
 
 ## Minimal Hardware Requirements:
 
@@ -22,10 +22,8 @@ Run:
 ```
 vagrant up
 ```
-Worker nodes are not automatically added to the cluster, so to connect them, login to the master node and get a join command with token:
+
+Connect to the master node and start testing
 ```
 vagrant ssh master
-kubeadm token create --print-join-command
 ```
-
-Then copy the output from the previous command and run it with sudo on the worker nodes.

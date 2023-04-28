@@ -15,8 +15,8 @@ step() {
 
 boostrap_cluster() {
     step "===== Boostrap config files and network settings ====="
-    wget https://docs.projectcalico.org/manifests/calico.yaml -O $NETWORK_CONF
-    kubeadm config print init-defaults 2>/dev/null > $CLUSTER_CONFIG
+    curl -q https://raw.githubusercontent.com/projectcalico/calico/v3.25.1/manifests/calico.yaml -o $NETWORK_CONF
+    kubeadm config print init-defaults > $CLUSTER_CONFIG
     sed -i "s/  advertiseAddress: 1.2.3.4/  advertiseAddress: $IP_ADDR/" $CLUSTER_CONFIG
     sed -i 's/  criSocket: \/var\/run\/dockershim.sock/  criSocket: \/run\/containerd\/containerd\.sock/' $CLUSTER_CONFIG
     sed -i 's/  name: node/  name: master/' $CLUSTER_CONFIG
@@ -26,6 +26,7 @@ cat <<EOF | cat >> $CLUSTER_CONFIG
 apiVersion: kubelet.config.k8s.io/v1beta1
 kind: KubeletConfiguration
 cgroupDriver: systemd
+resolvConf: /run/systemd/resolve/resolv.conf
 EOF
 }
 
@@ -40,11 +41,11 @@ start_cluster() {
 
 install_helm3() {
     step "===== Install Helm3 ====="
-    curl https://baltocdn.com/helm/signing.asc | gpg --dearmor | sudo tee /usr/share/keyrings/helm.gpg > /dev/null
+    curl -q https://baltocdn.com/helm/signing.asc | gpg --dearmor | sudo tee /usr/share/keyrings/helm.gpg > /dev/null
     sudo apt-get install apt-transport-https --yes
     echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/helm.gpg] https://baltocdn.com/helm/stable/debian/ all main" | sudo tee /etc/apt/sources.list.d/helm-stable-debian.list
-    sudo apt-get update
-    sudo apt-get install helm
+    sudo apt-get update -y
+    sudo apt-get install helm -y
 }
 
 main() {

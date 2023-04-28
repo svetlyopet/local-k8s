@@ -3,6 +3,7 @@
 export DEBIAN_FRONTEND=noninteractive
 export VERSION=1.23.3-00
 
+
 step=1
 step() {
     echo "Step $step $1"
@@ -29,11 +30,16 @@ sudo bash -c 'cat <<EOF > /etc/sysctl.d/99-kubernetes-cri.conf
 net.bridge.bridge-nf-call-iptables    = 1
 net.bridge.bridge-nf-call-ip6tables   = 1
 net.ipv4.ip_forward                   = 1
+net.ipv4.conf.all.promote_secondaries = 1
 EOF'
+
+sudo sed -i 's/-net.ipv4.conf.all.promote_secondaries/#net.ipv4.conf.all.promote_secondaries/g' /usr/lib/sysctl.d/50-default.conf
+sudo sed -i 's/-net.ipv4.ping_group_range/#net.ipv4.ping_group_range/g' /usr/lib/sysctl.d/50-default.conf
+
 
     sudo sysctl --system
 
-    sudo apt-get update
+    sudo apt-get update -y
     sudo apt-get install -y containerd
 
     sudo mkdir -p /etc/containerd
@@ -44,14 +50,13 @@ EOF'
 
 install_k8s() {
     step "===== Install kubelet kubeadm kubectl ====="
-    curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add - > /dev/null
+    curl -q -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add - >/dev/null 2>&1
 
 sudo bash -c 'cat <<EOF > /etc/apt/sources.list.d/kubernetes.list
 deb http://apt.kubernetes.io/ kubernetes-xenial main
 EOF'
 
-    sudo apt-get update
-    echo $VERSION > /tmp/kubenetes_version
+    sudo apt-get update -y
     sudo apt-get install -y kubelet=$VERSION kubeadm=$VERSION kubectl=$VERSION
     sudo apt-mark hold kubelet kubeadm kubectl containerd
     sudo systemctl enable kubelet
